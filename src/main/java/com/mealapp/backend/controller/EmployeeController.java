@@ -5,9 +5,11 @@ import com.mealapp.backend.dtos.Request.LoginEmployee;
 import com.mealapp.backend.dtos.Request.RegisterEmployee;
 import com.mealapp.backend.dtos.Response.JWT_Response;
 import com.mealapp.backend.dtos.Response.LogResponse;
+import com.mealapp.backend.entities.Department;
 import com.mealapp.backend.entities.Employee;
 import com.mealapp.backend.repository.EmployeeRepo;
 import com.mealapp.backend.service.EmployeeService;
+import com.mealapp.backend.service.departmentService;
 import com.mealapp.backend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -33,14 +36,25 @@ public class EmployeeController {
     private final UserDetailsService userDetailsService;
     private final JwtUtil jwtUtil;
     private final EmployeeRepo employeeRepo;
+    private final departmentService departmentService;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtUtil jwtUtil, EmployeeRepo employeeRepo) {
+    public EmployeeController(EmployeeService employeeService, AuthenticationManager authenticationManager, UserDetailsService userDetailsService, JwtUtil jwtUtil, EmployeeRepo employeeRepo, com.mealapp.backend.service.departmentService departmentService) {
         this.employeeService = employeeService;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
         this.employeeRepo = employeeRepo;
+        this.departmentService = departmentService;
+    }
+
+    @PostMapping("/addDepart")
+    public Department createDepartment(@RequestBody Department department) {
+        return departmentService.createDepartment(department);
+    }
+    @GetMapping("/ListDepart")
+    public List<Department> getAllDepartments() {
+        return departmentService.getAllDepartments();
     }
 
 

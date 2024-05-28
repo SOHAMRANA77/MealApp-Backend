@@ -17,7 +17,7 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "empName")
+    @Column(name = "empName", nullable = false)
     private String name;
 
     @Column(name = "email", unique = true)
@@ -38,8 +38,9 @@ public class Employee {
     @Column(name = "oldPassword4")
     private String oldPassword4;
 
-    @Column(name = "department")
-    private String department;
+    @ManyToOne
+    @JoinColumn(name = "dept_id")
+    private Department department;
 
     @Column(name = "phoneNo")
     private String phoneNo;
@@ -50,7 +51,7 @@ public class Employee {
     public Employee() {
     }
 
-    public Employee(String name, String email, String currentPassword, String department, String phoneNo, UserRole userRole) {
+    public Employee(String name, String email, String currentPassword, Department department, String phoneNo, UserRole userRole) {
         this.name = name;
         this.email = email;
         this.currentPassword = currentPassword;
