@@ -9,13 +9,16 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
+@Table(uniqueConstraints={
+        @UniqueConstraint(columnNames = {"name", "location"})
+})
 public class Department {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
     private String location;

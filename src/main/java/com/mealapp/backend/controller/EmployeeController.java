@@ -5,6 +5,7 @@ import com.mealapp.backend.dtos.Request.LoginEmployee;
 import com.mealapp.backend.dtos.Request.RegisterEmployee;
 import com.mealapp.backend.dtos.Response.JWT_Response;
 import com.mealapp.backend.dtos.Response.LogResponse;
+import com.mealapp.backend.dtos.Response.Token_Response;
 import com.mealapp.backend.entities.Department;
 import com.mealapp.backend.entities.Employee;
 import com.mealapp.backend.repository.EmployeeRepo;
@@ -13,6 +14,7 @@ import com.mealapp.backend.service.departmentService;
 import com.mealapp.backend.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -69,25 +71,29 @@ public class EmployeeController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginEmployee.getEmail(), loginEmployee.getCurrentPassword()));
         } catch (BadCredentialsException e) {
-            return ResponseEntity.ok(new JWT_Response("Incorrect Username or Password",false));
+            return ResponseEntity.ok(new Token_Response("Incorrect Username or Password", HttpStatus.BAD_REQUEST,false));
 //            throw new BadCredentialsException("Incorrect Username or Password");
 
         } catch (DisabledException disabledException) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "User Not Active");
-            return ResponseEntity.ok(new JWT_Response("User Not Active",false));
+            return ResponseEntity.ok(new Token_Response("User Not Active",HttpStatus.BAD_REQUEST,false));
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(loginEmployee.getEmail());
-        final String jwt = jwtUtil.generateToken(userDetails.getUsername());
+//        final String jwt = jwtUtil.generateToken(userDetails.getUsername());
+//        Optional<Employee> optionalEmployee = employeeRepo.findFirstByEmail(userDetails.getUsername());
+//        JWT_Response loginResponse = new JWT_Response();
+//        if(optionalEmployee.isPresent()){
+//            loginResponse.setJwt(jwt);
+//            loginResponse.setId(optionalEmployee.get().getId());
+//            loginResponse.setUserRole(optionalEmployee.get().getUserRole());
+//            loginResponse.setStatus(true);
+//        }
+//        return ResponseEntity.ok(loginResponse);
         Optional<Employee> optionalEmployee = employeeRepo.findFirstByEmail(userDetails.getUsername());
-        JWT_Response loginResponse = new JWT_Response();
-        if(optionalEmployee.isPresent()){
-            loginResponse.setJwt(jwt);
-            loginResponse.setId(optionalEmployee.get().getId());
-            loginResponse.setUserRole(optionalEmployee.get().getUserRole());
-            loginResponse.setStatus(true);
-        }
-        return ResponseEntity.ok(loginResponse);
+        final String jwt = jwtUtil.generateToken(userDetails.getUsername(),optionalEmployee.get().getId(),optionalEmployee.get().getUserRole());
+        return ResponseEntity.ok(new Token_Response("Login Done",HttpStatus.CREATED,true,jwt));
+
     }
 
 
