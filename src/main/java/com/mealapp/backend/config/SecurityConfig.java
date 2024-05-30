@@ -26,5 +26,19 @@ public class SecurityConfig {
         return http.build();
     }
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/mealApp/api/**").permitAll() // Allow public access to authentication endpoints
+//                        .anyRequest().authenticated()) // Secure all other endpoints
+//                .addFilter(new JwtAuthenticationFilter(authenticationManager))
+//                .addFilterBefore(new JwtAuthorizationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class)
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//
+//        return http.build();
+//    }
+
 
 }

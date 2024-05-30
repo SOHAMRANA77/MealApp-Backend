@@ -35,12 +35,6 @@ public class CouponConroller {
         return ResponseEntity.ok(isCancel);
     }
 
-    @PostMapping("/GetQrCode")
-    public String getQrCode(@RequestParam("emp_id") Long emp_id,
-                            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                            @RequestParam("type") MenuType type) {
-        return couponService.getQRcdoe(emp_id, date, type);
 
-    }
 
 }

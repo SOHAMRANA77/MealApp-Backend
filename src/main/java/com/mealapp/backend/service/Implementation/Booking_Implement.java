@@ -9,12 +9,14 @@ import com.mealapp.backend.entities.Menu;
 import com.mealapp.backend.enums.CouponStatus;
 import com.mealapp.backend.enums.MenuDay;
 import com.mealapp.backend.enums.MenuType;
+import com.mealapp.backend.enums.NotificationType;
 import com.mealapp.backend.repository.BookingRepo;
 import com.mealapp.backend.repository.CouponRepo;
 import com.mealapp.backend.repository.EmployeeRepo;
 import com.mealapp.backend.repository.MenuRepo;
 import com.mealapp.backend.service.BookingService;
 import com.mealapp.backend.service.Implementation.UUID.CouponCodeGenerator;
+import com.mealapp.backend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,9 +36,12 @@ public class Booking_Implement implements BookingService {
     private CouponRepo couponRepo;
     @Autowired
     private CouponCodeGenerator couponCodeGenerator;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public LogResponse addbooking(BookingReq bookingReq) {
+        String msg;
         try {
             // Check if employee exists
             System.out.println(bookingReq.toString());
@@ -54,17 +59,23 @@ public class Booking_Implement implements BookingService {
             if(!S_booked.isPresent() || !E_booked.isPresent()){
                 bookingRepo.save(booking);
                 generateCouponsForWeekdays(booking);
-                return new LogResponse("Booking saved successfully",true);
+                msg = "Booking saved successfully";
+                notificationService.AddNotification(employee,msg, NotificationType.BOOKED);
+                return new LogResponse(msg,true);
             }else {
-                boolean S_couponsExist = couponRepo.existsByBookingAndCouponStampBetweenAndIsCancelFalse(S_booked.get(), booking.getStartDate(), booking.getEndDate());
-                boolean E_couponsExist = couponRepo.existsByBookingAndCouponStampBetweenAndIsCancelFalse(E_booked.get(), booking.getStartDate(), booking.getEndDate());
+                boolean S_couponsExist = couponRepo.existsByBookingAndCouponStampBetweenAndIsCancelTrue(S_booked.get(), booking.getStartDate(), booking.getEndDate());
+                boolean E_couponsExist = couponRepo.existsByBookingAndCouponStampBetweenAndIsCancelTrue(E_booked.get(), booking.getStartDate(), booking.getEndDate());
                 if (E_couponsExist) {
                     // Coupons exist, set cancel status to false for existing coupons
                     couponRepo.updateCancelStatusForBookingInRange(E_booked.get(), booking.getStartDate(), booking.getEndDate());
-                    return new LogResponse("Coupons reactivated successfully", true);
+                    msg = "Coupons reactivated successfully -1";
+                    notificationService.AddNotification(E_booked.get().getEmployee(),msg, NotificationType.BOOKED);
+                    return new LogResponse(msg, true);
                 } else if(S_couponsExist){
                     couponRepo.updateCancelStatusForBookingInRange(S_booked.get(), booking.getStartDate(), booking.getEndDate());
-                    return new LogResponse("Coupons reactivated successfully", true);}
+                    msg = "Coupons reactivated successfully -2";
+                    notificationService.AddNotification(S_booked.get().getEmployee(),msg, NotificationType.BOOKED);
+                    return new LogResponse(msg, true);}
                 else {
                     // Coupons not found, return message
                     return new LogResponse("Booking already in database but no active coupons found", true);

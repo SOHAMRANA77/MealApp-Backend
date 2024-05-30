@@ -1,9 +1,17 @@
 package com.mealapp.backend.dtos.Request;
 
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@Getter
 public class ChangePassword {
 
     private String email;
     private String newPassword;
+    private String oldPassword;
 
     @Override
     public String toString() {
@@ -13,28 +21,14 @@ public class ChangePassword {
                 '}';
     }
 
-    public ChangePassword() {
-    }
-
     public ChangePassword(String email, String newPassword) {
         this.email = email;
         this.newPassword = newPassword;
     }
 
-    // Getters and setters
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
+    public ChangePassword(String email, String newPassword, String oldPassword) {
         this.email = email;
-    }
-
-    public String getNewPassword() {
-        return newPassword;
-    }
-
-    public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
+        this.oldPassword = oldPassword;
     }
 }

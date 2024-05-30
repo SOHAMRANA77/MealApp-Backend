@@ -12,14 +12,16 @@ public class RegisterEmployee {
     private String department;
     private String phoneNo;
     private UserRole userRole;
+    private String location;
 
-    public RegisterEmployee(String name, String email, String currentPassword, String department, String phoneNo, UserRole userRole) {
+    public RegisterEmployee(String name, String email, String currentPassword, String department, String phoneNo, UserRole userRole, String location) {
         this.name = name;
         this.email = email;
         this.currentPassword = currentPassword;
         this.department = department;
         this.phoneNo = phoneNo;
         this.userRole = userRole;
+        this.location = location;
     }
 
     public RegisterEmployee() {

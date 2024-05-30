@@ -17,7 +17,7 @@ import java.util.List;
 public interface CouponRepo extends JpaRepository<Coupon, Long> {
 //    List<Coupon> findByBookingEmployeeId(Long empId);
     List<Coupon> findByBookingEmployeeIdAndIsCancelFalse(Long empId);
-    boolean existsByBookingAndCouponStampBetweenAndIsCancelFalse(Booking booking, LocalDate startDate, LocalDate endDate);
+    boolean existsByBookingAndCouponStampBetweenAndIsCancelTrue(Booking booking, LocalDate startDate, LocalDate endDate);
 
     @Modifying
     @Transactional
