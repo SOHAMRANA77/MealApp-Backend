@@ -20,4 +20,14 @@ public class BookingReq {
         this.endDate = endDate;
         this.bookingType = bookingType;
     }
+
+    @Override
+    public String toString() {
+        return "BookingReq{" +
+                "employeeId=" + employeeId +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", bookingType=" + bookingType +
+                '}';
+    }
 }

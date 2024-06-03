@@ -12,4 +12,6 @@ public interface NotificationService {
 
     List<NotificationResponse> getNotificationById(Long id);
     void AddNotification(Employee employee, String message, NotificationType type);
+
+    LogResponse updateIsSeen(Long id, Long empId);
 }

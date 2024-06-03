@@ -25,6 +25,7 @@ public class Notification_Implement implements NotificationService {
         return notificationRepo.findByEmployeeIdAndIsSeenFalse(id).stream()
                 .map(notification -> new NotificationResponse(
                         notification.getMessage(),
+                        notification.getId()    ,
                         notification.getType()))
                 .collect(Collectors.toList());
     }
@@ -36,6 +37,19 @@ public class Notification_Implement implements NotificationService {
             notificationRepo.save(notification);
         }catch (Exception e){
             System.out.println(e.getMessage());
+        }
+    }
+
+    @Override
+    public LogResponse updateIsSeen(Long id, Long empId) {
+        try{
+            Notification notification = notificationRepo.findByIdAndEmployeeIdAndIsSeenFalse(id, empId);
+            System.out.println(notification);
+            notification.setSeen(true);
+            notificationRepo.save(notification);
+            return new LogResponse("Done",true);
+        }catch (Exception e){
+            return new LogResponse("Notification : "+e.getMessage(),false);
         }
     }
 }

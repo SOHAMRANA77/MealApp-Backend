@@ -22,4 +22,6 @@ public interface EmployeeService {
 
 
     ResponseEntity<?> changePassword(ChangePassword changePassword);
+
+    String getNameById(Long id);
 }

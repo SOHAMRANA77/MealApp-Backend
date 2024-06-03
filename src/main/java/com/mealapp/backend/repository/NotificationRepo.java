@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface NotificationRepo extends JpaRepository<Notification , Long> {
     List<Notification> findByEmployeeIdAndIsSeenFalse(Long id);
+
+    Notification findByIdAndEmployeeIdAndIsSeenFalse(Long id, Long empId);
 }

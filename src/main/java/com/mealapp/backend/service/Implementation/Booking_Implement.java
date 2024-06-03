@@ -44,7 +44,7 @@ public class Booking_Implement implements BookingService {
         String msg;
         try {
             // Check if employee exists
-            System.out.println(bookingReq.toString());
+            System.out.println(bookingReq.toString()+"\n\n\n\n\n\n\n\n\n"+bookingReq.toString());
             Employee employee = employeeRepo.findById(bookingReq.getEmployeeId())
                     .orElseThrow(() -> new RuntimeException("Employee not found"));
             System.out.println(employee.toString());

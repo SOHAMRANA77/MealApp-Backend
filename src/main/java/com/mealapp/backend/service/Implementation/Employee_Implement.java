@@ -183,7 +183,7 @@ public class Employee_Implement implements EmployeeService {
     public ResponseEntity<?> changePassword(ChangePassword changePassword) {
         Employee employee = employeeRepo.findByEmail(changePassword.getEmail());
         if(!passwordEncoder.matches(changePassword.getOldPassword(), employee.getCurrentPassword())){
-            return new ResponseEntity<>("Password or Email is incorrect", HttpStatus.BAD_REQUEST);
+            return  ResponseEntity.ok(new LogResponse("Password or Email is incorrect",HttpStatus.BAD_REQUEST, false));
         }
         String newPassword = changePassword.getNewPassword();
 
@@ -192,7 +192,8 @@ public class Employee_Implement implements EmployeeService {
                 passwordEncoder.matches(newPassword, employee.getOldPassword2()) ||
                 passwordEncoder.matches(newPassword, employee.getOldPassword3()) ||
                 passwordEncoder.matches(newPassword, employee.getOldPassword4())) {
-            return new ResponseEntity<>("New password must be different from the current and previous passwords", HttpStatus.BAD_REQUEST);
+            return  ResponseEntity.ok(new LogResponse("New password must be different from the current and previous passwords",HttpStatus.BAD_REQUEST, false));
+
         }
         employee.setOldPassword4(employee.getOldPassword3());
         employee.setOldPassword3(employee.getOldPassword2());
@@ -202,7 +203,21 @@ public class Employee_Implement implements EmployeeService {
 
         employeeRepo.save(employee);
         notificationService.AddNotification(employee,"Change Password successfully",NotificationType.PASSWORD);
-        return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+        return  ResponseEntity.ok(new LogResponse("Password changed successfully",HttpStatus.ACCEPTED, true));
+
+    }
+
+    public String getNameById(Long id) {
+        String fullName = employeeRepo.findEmpNameById(id);
+        return extractFirstName(fullName);
+    }
+
+    private String extractFirstName(String fullName) {
+        if (fullName != null && !fullName.isEmpty()) {
+            String[] nameParts = fullName.split(" ");
+            return nameParts[0]; // Return the first part of the name
+        }
+        return "";
     }
 
 

@@ -1,10 +1,9 @@
 package com.mealapp.backend.controller;
 
+import com.mealapp.backend.dtos.Request.DeleteNotificationRequest;
 import com.mealapp.backend.dtos.Response.LogResponse;
 import com.mealapp.backend.dtos.Response.NotificationResponse;
-import com.mealapp.backend.entities.Notification;
 import com.mealapp.backend.service.NotificationService;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,4 +22,11 @@ public class NotificationController {
     public List<NotificationResponse> showNotificationByID(@RequestParam Long id){
         return notificationService.getNotificationById(id);
     }
+
+    @PutMapping("/deleteNotification")
+    public ResponseEntity<?> deleteNofi(@RequestBody DeleteNotificationRequest request){
+        LogResponse notificationUpdate = notificationService.updateIsSeen(request.getId(), request.getEmpId());
+        return ResponseEntity.ok(notificationUpdate);
+    }
+
 }

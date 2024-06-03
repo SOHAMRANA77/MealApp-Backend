@@ -3,6 +3,7 @@ package com.mealapp.backend.controller;
 
 import com.mealapp.backend.dtos.Request.DeleteCoupon;
 import com.mealapp.backend.dtos.Response.Booked_Response;
+import com.mealapp.backend.dtos.Response.BookingsResponse;
 import com.mealapp.backend.dtos.Response.LogResponse;
 import com.mealapp.backend.entities.Coupon;
 import com.mealapp.backend.enums.MenuType;
@@ -14,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("mealApp/api")
@@ -36,5 +39,28 @@ public class CouponConroller {
     }
 
 
-
+//    @GetMapping("/getBookingsByEmpId")
+//    public BookingsResponse getBookings(@RequestParam Long emp_id) {
+//        List<Booked_Response> bookedResponses = couponService.getCouponByID(emp_id);
+//
+//        Map<String, BookingsResponse.MealType> bookingsMap = new HashMap<>();
+//
+//        for (Booked_Response response : bookedResponses) {
+//            String date = response.getDate().toString();
+//            BookingsResponse.MealType mealType = bookingsMap.getOrDefault(date, new BookingsResponse.MealType());
+//
+//            if (response.getType() == MenuType.LUNCH) {
+//                mealType.setLUNCH(true);
+//            } else if (response.getType() == MenuType.DINNER) {
+//                mealType.setDINNER(true);
+//            }
+//
+//            bookingsMap.put(date, mealType);
+//        }
+//
+//        BookingsResponse bookingsResponse = new BookingsResponse();
+//        bookingsResponse.setBookings(bookingsMap);
+//
+//        return bookingsResponse;
+//    }
 }

@@ -13,15 +13,16 @@ import lombok.Setter;
 public class NotificationResponse {
 
     private String message;
+    private Long id;
 
     private NotificationType type;
 
     private boolean isSeen = false;
 
-    public NotificationResponse(String message, NotificationType type, boolean isSeen) {
+    public NotificationResponse(String message, Long id, NotificationType type) {
         this.message = message;
+        this.id = id;
         this.type = type;
-        this.isSeen = isSeen;
     }
 
     public NotificationResponse(String message, NotificationType type) {

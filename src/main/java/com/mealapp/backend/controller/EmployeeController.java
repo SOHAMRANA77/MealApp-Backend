@@ -30,6 +30,11 @@ public class EmployeeController {
         this.employeeService = employeeService;
         this.departmentService = departmentService;
     }
+    @GetMapping("/getName")
+    public String getname(@RequestParam("id") Long id) {
+        System.out.println(id);
+        return employeeService.getNameById(id);
+    }
 
     @PostMapping("/addDepart")
     public Department createDepartment(@RequestBody Department department) {

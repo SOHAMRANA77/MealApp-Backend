@@ -18,6 +18,7 @@ public class BookingController {
     @PostMapping("/addBooking")
     public ResponseEntity<?> addbooking(@RequestBody BookingReq bookingReq){
         LogResponse bookingmessage = bookingService.addbooking(bookingReq);
+        System.out.println(bookingmessage.toString()+" \n\n\n\n\n");
         return ResponseEntity.ok(bookingmessage);
     }
 }

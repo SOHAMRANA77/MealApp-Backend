@@ -13,5 +13,5 @@ public interface CouponService {
 
     LogResponse DeleteCouponByDateAndMealTypeAndEmpID(DeleteCoupon deleteCoupon);
 
-    String getQRcdoe(Long empId, LocalDate date, MenuType type);
+    LogResponse getQRcdoe(Long empId, LocalDate date, MenuType type);
 }

@@ -20,14 +20,7 @@ public class Coupon_Implement implements CouponService {
     @Autowired
     private CouponRepo couponRepo;
 
-//    @Override
-//    public List<Booked_Response> getCouponByID(Long empId) {
-//        List<Coupon> coupons = couponRepo.findByBookingEmployeeId(empId);
-//        return coupons.stream()
-//                .filter(coupon -> !coupon.isCancel())
-//                .map(coupon -> new Booked_Response(coupon.getCouponStamp(), coupon.getBooking().getBookingType()))
-//                .collect(Collectors.toList());
-//    }
+
     @Override
     public List<Booked_Response> getCouponByID(Long empId) {
         List<Coupon> coupons = couponRepo.findByBookingEmployeeIdAndIsCancelFalse(empId);
@@ -47,15 +40,15 @@ public class Coupon_Implement implements CouponService {
     }
 
     @Override
-    public String getQRcdoe(Long empId, LocalDate date, MenuType type) {
+    public LogResponse getQRcdoe(Long empId, LocalDate date, MenuType type) {
         Coupon coupon = couponRepo.findByBooking_Employee_IdAndCouponStampAndMenu_MenuType(empId, date, type);
 
         // If coupon exists, return the coupon code
         if (coupon != null) {
-            return coupon.getCouponCode();
+            return new LogResponse(coupon.getCouponCode(),true);
         } else {
             // Coupon not found
-            return "Coupon not found for emp_id=" + empId + ", date=" + date + ", type=" + type;
+            return new LogResponse("Coupon not found for emp_id=" + empId + ", date=" + date + ", type=" + type,false);
         }
     }
 }
