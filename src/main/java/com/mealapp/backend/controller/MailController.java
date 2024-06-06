@@ -5,7 +5,8 @@ import com.mealapp.backend.dtos.Response.LogResponse;
 import com.mealapp.backend.dtos.Request.Mail;
 import com.mealapp.backend.repository.EmployeeRepo;
 import com.mealapp.backend.service.EmployeeService;
-import com.mealapp.backend.service.OtpService;
+import com.mealapp.backend.service.Implementation.OtpImplementation;
+import com.mealapp.backend.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,43 +16,23 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("mealApp/api")
 @CrossOrigin(origins = "http://localhost:4200")
 public class MailController {
-
-    private final EmployeeRepo employeeRepo;
-    private final OtpService otpService;
-    private final PasswordEncoder passwordEncoder;
     private final EmployeeService employeeService;
+    private final MailService mailService;
 
-    @Autowired
-    public MailController(EmployeeRepo employeeRepo, OtpService otpService, PasswordEncoder passwordEncoder, EmployeeService employeeService) {
-        this.employeeRepo = employeeRepo;
-        this.otpService = otpService;
-        this.passwordEncoder = passwordEncoder;
+    public MailController(EmployeeService employeeService, MailService mailService) {
         this.employeeService = employeeService;
+        this.mailService = mailService;
     }
+
 
     @PostMapping("/sendMail")
     public ResponseEntity<?> sendMail(@RequestBody Mail mail){
-        LogResponse mailResponse;
-
-        if(employeeRepo.findFirstByEmail(mail.getEmail()).isPresent()){
-            mailResponse = otpService.sendOtp(mail.getEmail());
-        }
-        else {
-            mailResponse = new LogResponse("Email not Exist", false);
-        }
-        return ResponseEntity.ok(mailResponse);
+        return mailService.sendMail(mail);
     }
 
     @PostMapping("/verifyOtp")
     public ResponseEntity<?> verifyOtp(@RequestBody Mail mail){
-        LogResponse verifyOtpRes;
-        if(employeeRepo.findFirstByEmail(mail.getEmail()).isPresent()){
-            verifyOtpRes = otpService.verifyOtp(mail.getEmail(),mail.getOtp());
-        }
-        else {
-            verifyOtpRes = new LogResponse("Email not Exist", false);
-        }
-        return ResponseEntity.ok(verifyOtpRes);
+        return mailService.verifyOtp(mail);
     }
 
     @PutMapping("/changePasswordByOtp")

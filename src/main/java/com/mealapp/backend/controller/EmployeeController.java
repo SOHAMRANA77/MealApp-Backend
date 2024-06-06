@@ -40,6 +40,7 @@ public class EmployeeController {
     public Department createDepartment(@RequestBody Department department) {
         return departmentService.createDepartment(department);
     }
+
     @GetMapping("/ListDepart")
     public List<Department> getAllDepartments() {
         return departmentService.getAllDepartments();

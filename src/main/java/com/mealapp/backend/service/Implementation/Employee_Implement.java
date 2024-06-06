@@ -136,7 +136,7 @@ public class Employee_Implement implements EmployeeService {
 //        return ResponseEntity.ok(loginResponse);
         Optional<Employee> optionalEmployee = employeeRepo.findFirstByEmail(userDetails.getUsername());
         final String jwt = jwtUtil.generateToken(userDetails.getUsername(),optionalEmployee.get().getId(),optionalEmployee.get().getUserRole());
-        return ResponseEntity.ok(new Token_Response("Login Done",HttpStatus.CREATED,true,jwt));
+        return ResponseEntity.ok(new Token_Response("Login Successfully",HttpStatus.CREATED,true,jwt));
     }
 
     @Override
@@ -146,13 +146,13 @@ public class Employee_Implement implements EmployeeService {
 
         // Validate input
         if (email == null || email.isEmpty() || newPassword == null || newPassword.isEmpty()) {
-            return new ResponseEntity<>("Email and password must not be empty", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(new LogResponse("Email and password must not be empty",HttpStatus.BAD_REQUEST,false));
         }
 
         // Fetch the employee by email
         Optional<Employee> optionalEmployee = employeeRepo.findFirstByEmail(email);
         if (!optionalEmployee.isPresent()) {
-            return new ResponseEntity<>("Employee not found", HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(new LogResponse("Employee not found", HttpStatus.NOT_FOUND, false));
         }
 
         Employee employee = optionalEmployee.get();
@@ -163,7 +163,7 @@ public class Employee_Implement implements EmployeeService {
                 passwordEncoder.matches(newPassword, employee.getOldPassword2()) ||
                 passwordEncoder.matches(newPassword, employee.getOldPassword3()) ||
                 passwordEncoder.matches(newPassword, employee.getOldPassword4())) {
-            return new ResponseEntity<>("New password must be different from the current and previous passwords", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.ok(new LogResponse("New password must be different from the current and previous passwords", HttpStatus.BAD_REQUEST,false));
         }
 
         // Rotate passwords
@@ -176,7 +176,7 @@ public class Employee_Implement implements EmployeeService {
         // Save the updated employee back to the repository
         employeeRepo.save(employee);
         notificationService.AddNotification(employee,"Change Password successfully by OTP",NotificationType.OTP);
-        return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+        return ResponseEntity.ok(new LogResponse("Password changed successfully", HttpStatus.OK, true));
     }
 
     @Override
@@ -218,6 +218,10 @@ public class Employee_Implement implements EmployeeService {
             return nameParts[0]; // Return the first part of the name
         }
         return "";
+    }
+
+    public String getFullName(Long id){
+        return employeeRepo.findEmpNameById(id);
     }
 
 

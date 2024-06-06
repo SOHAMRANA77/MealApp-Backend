@@ -27,6 +27,9 @@ public class Otp {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column
+    private boolean isUsed = false;
+
     public Otp(String email, String otp) {
         this.email = email;
         this.otp = otp;

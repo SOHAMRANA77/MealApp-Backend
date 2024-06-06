@@ -1,5 +1,6 @@
 package com.mealapp.backend.util;
 
+import com.mealapp.backend.entities.Booking;
 import com.mealapp.backend.enums.MenuType;
 import com.mealapp.backend.enums.UserRole;
 import io.jsonwebtoken.JwtException;
@@ -29,33 +30,33 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    public String generateToken(String email) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("email", email);
-        return createToken(claims);
-    }
-    public String generateToken(Long C_id, LocalDate C_date, Long B_id, MenuType menuType){
+//    public String generateToken(String email) {
+//        Map<String, Object> claims = new HashMap<>();
+//        claims.put("email", email);
+//        return createToken(claims);
+//    }
+    public String generateToken(Long C_id, LocalDate C_date, Booking B_id, MenuType menuType){
         Map<String, Object> claims = new HashMap<>();
         claims.put("Coupon_ID",C_id);
         claims.put("LocalDate",C_date);
-        claims.put("Booking_ID",C_id);
+        claims.put("Booking_ID",B_id.getId());
         claims.put("MenuType",menuType);
-        return createToken(claims);
+        return createToken(claims,2L);
     }
     public String generateToken(String email, Long id, UserRole userRole){
         Map<String, Object> claims = new HashMap<>();
         claims.put("email",email);
         claims.put("id",id);
         claims.put("UserRole", userRole);
-        return createToken(claims);
+        return createToken(claims,5L);
     }
 
-    private String createToken(Map<String, Object> claims) {
+    private String createToken(Map<String, Object> claims,Long hour) {
         try {
             return Jwts.builder()
                     .setClaims(claims)
                     .setIssuedAt(new Date(System.currentTimeMillis()))
-                    .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30))
+                    .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * hour))
                     .signWith(SignatureAlgorithm.HS256, Base64.getEncoder().encodeToString(secret.getBytes()))
                     .compact();
         } catch (JwtException e) {

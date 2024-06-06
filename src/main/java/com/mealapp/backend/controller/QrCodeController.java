@@ -17,11 +17,20 @@ public class QrCodeController {
     @Autowired
     private CouponService couponService;
 
-    @PostMapping("/GetQrCode")
-    public ResponseEntity<?> getQrCode(@RequestParam("emp_id") Long emp_id,
-                                    @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-                                    @RequestParam("type") MenuType type) {
-        return ResponseEntity.ok(couponService.getQRcdoe(emp_id, date, type));
+//    @GetMapping("/GetQrCode")
+//    public ResponseEntity<?> getQrCode(@RequestParam("emp_id") Long emp_id,
+//                                    @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+//                                    @RequestParam("type") MenuType type) {
+//        return ResponseEntity.ok(couponService.getQRcdoe(emp_id, date, type));
+//
+//    }
 
+    @GetMapping("/GetQrCode")
+    public ResponseEntity<?> getQrCode(@RequestParam("emp_id") Long emp_id,
+                                       @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                       @RequestParam("type") MenuType type) {
+        System.out.println("in Qrcode\n\n\n\n\n");
+        return ResponseEntity.ok(couponService.getQRcdoe(emp_id, date, type));
     }
+
 }

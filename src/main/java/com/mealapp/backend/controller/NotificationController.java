@@ -24,8 +24,14 @@ public class NotificationController {
     }
 
     @PutMapping("/deleteNotification")
-    public ResponseEntity<?> deleteNofi(@RequestBody DeleteNotificationRequest request){
+    public ResponseEntity<?> deleteNotification(@RequestBody DeleteNotificationRequest request){
         LogResponse notificationUpdate = notificationService.updateIsSeen(request.getId(), request.getEmpId());
+        return ResponseEntity.ok(notificationUpdate);
+    }
+
+    @PutMapping("/deleteAllNotification")
+    public ResponseEntity<?> deleteAllNotification(@RequestBody DeleteNotificationRequest request){
+        LogResponse notificationUpdate = notificationService.updateAllIsSeen(request.getEmpId());
         return ResponseEntity.ok(notificationUpdate);
     }
 

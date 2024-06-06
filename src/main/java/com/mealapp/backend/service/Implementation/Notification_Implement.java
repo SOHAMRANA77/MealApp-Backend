@@ -52,4 +52,22 @@ public class Notification_Implement implements NotificationService {
             return new LogResponse("Notification : "+e.getMessage(),false);
         }
     }
+
+    @Override
+    public LogResponse updateAllIsSeen(Long empId) {
+        try{
+            List<Notification> notifications = notificationRepo.findByEmployeeIdAndIsSeenFalse(empId);
+
+            // Step 2: Update isSeen to true for each notification
+            for (Notification notification : notifications) {
+                notification.setSeen(true);
+            }
+
+            // Step 3: Save all updated notifications
+            notificationRepo.saveAll(notifications);
+            return new LogResponse("All Notification has been cleared ",true);
+        }catch (Exception e){
+            return new LogResponse("Notification : "+e.getMessage(),false);
+        }
+    }
 }
