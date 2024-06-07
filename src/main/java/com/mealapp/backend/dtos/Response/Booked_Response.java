@@ -13,11 +13,11 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 public class Booked_Response {
-    private LocalDate date;
-    private MenuType type;
+    private LocalDate bookingDate;
+    private MenuType mealType;
 
     public Booked_Response(LocalDate date, MenuType type) {
-        this.date = date;
-        this.type = type;
+        this.bookingDate = date;
+        this.mealType = type;
     }
 }

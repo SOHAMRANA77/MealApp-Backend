@@ -183,7 +183,7 @@ public class Employee_Implement implements EmployeeService {
     public ResponseEntity<?> changePassword(ChangePassword changePassword) {
         Employee employee = employeeRepo.findByEmail(changePassword.getEmail());
         if(!passwordEncoder.matches(changePassword.getOldPassword(), employee.getCurrentPassword())){
-            return  ResponseEntity.ok(new LogResponse("Password or Email is incorrect",HttpStatus.BAD_REQUEST, false));
+            return  ResponseEntity.ok(new LogResponse("Password or Email are incorrect",HttpStatus.BAD_REQUEST, false));
         }
         String newPassword = changePassword.getNewPassword();
 
@@ -220,6 +220,7 @@ public class Employee_Implement implements EmployeeService {
         return "";
     }
 
+    @Override
     public String getFullName(Long id){
         return employeeRepo.findEmpNameById(id);
     }

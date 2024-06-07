@@ -5,6 +5,5 @@ public enum NotificationType {
     PASSWORD,
     BOOKED,
     BOOKING_CANCEL,
-    OTP,
-
+    OTP
 }

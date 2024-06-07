@@ -30,7 +30,7 @@ public class QrCodeController {
                                        @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                                        @RequestParam("type") MenuType type) {
         System.out.println("in Qrcode\n\n\n\n\n");
-        return ResponseEntity.ok(couponService.getQRcdoe(emp_id, date, type));
+        return couponService.getQRcdoe(emp_id, date, type);
     }
 
 }

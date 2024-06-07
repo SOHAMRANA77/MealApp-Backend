@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,7 @@ public class Notification_Implement implements NotificationService {
     @Override
     public List<NotificationResponse> getNotificationById(Long id) {
         return notificationRepo.findByEmployeeIdAndIsSeenFalse(id).stream()
+                .sorted(Comparator.comparing(Notification::getId).reversed())
                 .map(notification -> new NotificationResponse(
                         notification.getMessage(),
                         notification.getId()    ,

@@ -1,0 +1,190 @@
+//package com.mealapp.backend.service.Implementation;
+//
+//import com.mealapp.backend.dtos.Request.BookingReq;
+//import com.mealapp.backend.dtos.Response.LogResponse;
+//import com.mealapp.backend.entities.Booking;
+//import com.mealapp.backend.entities.Coupon;
+//import com.mealapp.backend.entities.Employee;
+//import com.mealapp.backend.entities.Menu;
+//import com.mealapp.backend.enums.CouponStatus;
+//import com.mealapp.backend.enums.MenuDay;
+//import com.mealapp.backend.enums.MenuType;
+//import com.mealapp.backend.enums.NotificationType;
+//import com.mealapp.backend.repository.BookingRepo;
+//import com.mealapp.backend.repository.CouponRepo;
+//import com.mealapp.backend.repository.EmployeeRepo;
+//import com.mealapp.backend.repository.MenuRepo;
+//import com.mealapp.backend.service.BookingService;
+//import com.mealapp.backend.service.Implementation.UUID.CouponCodeGenerator;
+//import com.mealapp.backend.service.NotificationService;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.stereotype.Service;
+//
+//import java.time.DayOfWeek;
+//import java.time.LocalDate;
+//import java.util.List;
+//import java.util.Optional;
+//import java.util.stream.Collectors;
+//import java.util.stream.Stream;
+//
+//@Service
+//public class BookingServiceImpl implements BookingService {
+//
+//    @Autowired
+//    private EmployeeRepo employeeRepo;
+//
+//    @Autowired
+//    private BookingRepo bookingRepo;
+//
+//    @Autowired
+//    private MenuRepo menuRepo;
+//
+//    @Autowired
+//    private CouponRepo couponRepo;
+//
+//    @Autowired
+//    private CouponCodeGenerator couponCodeGenerator;
+//
+//    @Autowired
+//    private NotificationService notificationService;
+//
+//    private final List<LocalDate> holidays = List.of(
+//            LocalDate.of(2024, 1, 1),
+//            LocalDate.of(2024, 12, 25)
+//    );
+//
+//    @Override
+//    public LogResponse addbooking(BookingReq bookingReq) {
+//        try {
+//            Employee employee = findEmployeeById(bookingReq.getEmployeeId());
+//
+//            List<LocalDate> conflictingHolidays = holidays.stream()
+//                    .filter(date -> !isWeekend(date))
+//                    .filter(date -> !date.isBefore(bookingReq.getStartDate()) && !date.isAfter(bookingReq.getEndDate()))
+//                    .collect(Collectors.toList());
+//
+//            if (!conflictingHolidays.isEmpty()) {
+//                return new LogResponse("Booking conflicts with holidays: " + conflictingHolidays.toString(), false);
+//            }
+//
+//            List<Booking> existingBookings = bookingRepo.findByEmployeeAndBookingTypeAndStartDateBetweenOrEndDateBetween(
+//                    employee, bookingReq.getBookingType(), bookingReq.getStartDate(), bookingReq.getEndDate(),
+//                    bookingReq.getEndDate(), bookingReq.getStartDate());
+//
+//            List<LocalDate> bookedDates = existingBookings.stream()
+//                    .flatMap(booking -> Stream.iterate(booking.getStartDate(), date -> date.plusDays(1))
+//                            .limit(booking.getEndDate().toEpochDay() - booking.getStartDate().toEpochDay() + 1))
+//                    .collect(Collectors.toList());
+//
+//            List<LocalDate> validBookingDates = Stream.iterate(bookingReq.getStartDate(), date -> date.plusDays(1))
+//                    .limit(bookingReq.getEndDate().toEpochDay() - bookingReq.getStartDate().toEpochDay() + 1)
+//                    .filter(date -> !isWeekend(date))
+//                    .filter(date -> !bookedDates.contains(date))
+//                    .collect(Collectors.toList());
+//
+//            if (validBookingDates.isEmpty()) {
+//                return new LogResponse("No valid dates available for booking", false);
+//            }
+//
+//            Booking newBooking = createBooking(employee, bookingReq.getStartDate(), bookingReq.getEndDate(), bookingReq.getBookingType());
+//
+//            updateOrCreateCoupons(newBooking, validBookingDates);
+//
+//            notifyBookingSuccess(newBooking);
+//
+//            return new LogResponse("Booking saved successfully for " + bookingReq.getBookingType() + " on " + formatBookingDateRange(bookingReq.getStartDate(), bookingReq.getEndDate()), true);
+//        } catch (Exception e) {
+//            return new LogResponse("Error occurred while booking: " + e.getMessage(), false);
+//        }
+//    }
+//
+//    private Employee findEmployeeById(Long employeeId) {
+//        return employeeRepo.findById(employeeId)
+//                .orElseThrow(() -> new RuntimeException("Employee not found"));
+//    }
+//
+//    private Booking createBooking(Employee employee, LocalDate startDate, LocalDate endDate, MenuType bookingType) {
+//        Booking newBooking = new Booking(employee, startDate, endDate, bookingType);
+//        return bookingRepo.save(newBooking);
+//    }
+//
+//    private void updateOrCreateCoupons(Booking booking, List<LocalDate> validBookingDates) {
+//        for (LocalDate date : validBookingDates) {
+//            List<Coupon> existingCoupons = couponRepo.findByBookingAndCouponStamp(booking, date);
+//
+//            if (existingCoupons.isEmpty()) {
+//                generateCoupon(booking, date, booking.getBookingType());
+//            } else {
+//                existingCoupons.forEach(coupon -> {
+//                    if (coupon.getCouponStatus() == CouponStatus.INACTIVE) {
+//                        coupon.setCouponStatus(CouponStatus.ACTIVE);
+//                        couponRepo.save(coupon);
+//                    }
+//                });
+//            }
+//        }
+//    }
+//
+//    private void generateCoupon(Booking booking, LocalDate date, MenuType bookingType) {
+//        Menu meal = findMealForDate(date, bookingType);
+//        if (meal == null) {
+//            throw new RuntimeException("Meal not found for date: " + date);
+//        }
+//
+//        String prefix = bookingType == MenuType.LUNCH ? "L" : "D";
+//        String code = prefix + couponCodeGenerator.generateUniqueCouponCode() + booking.getId() + couponCodeGenerator.generateUniqueCouponCode();
+//        Coupon coupon = new Coupon(code, date, CouponStatus.ACTIVE, meal, booking);
+//        couponRepo.save(coupon);
+//    }
+//
+//    private Menu findMealForDate(LocalDate date, MenuType bookingType) {
+//        Menu meal = menuRepo.findBySpecialDateAndMenuType(date, bookingType);
+//        return meal != null ? meal : menuRepo.findByMenuDayAndMenuType(MenuDay.valueOf(date.getDayOfWeek().name()), bookingType);
+//    }
+//
+//    private void notifyBookingSuccess(Booking booking) {
+//        String msg = "Booking saved successfully for " + booking.getBookingType() + " on " + formatBookingDateRange(booking.getStartDate(), booking.getEndDate());
+//        notificationService.AddNotification(booking.getEmployee(), msg, NotificationType.BOOKED);
+//    }
+//
+//    private boolean isWeekend(LocalDate date) {
+//        DayOfWeek day = date.getDayOfWeek();
+//        return day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY;
+//    }
+//
+//    private String formatBookingDateRange(LocalDate startDate, LocalDate endDate) {
+//        return startDate.isEqual(endDate) ? startDate.toString() : startDate.toString() + " to " + endDate.toString();
+//    }
+//
+//    // Assuming a method for cancelling a booking is needed
+////    @Override
+//    public LogResponse cancelBooking(Long employeeId, LocalDate cancelDate, MenuType bookingType) {
+//        try {
+//            Employee employee = findEmployeeById(employeeId);
+//
+//            List<Coupon> coupons = couponRepo.findByBookingEmployeeAndBookingBookingTypeAndCouponStampBetween(
+//                    employee, bookingType, cancelDate, cancelDate);
+//            if (coupons.isEmpty()) {
+//                return new LogResponse("No booking found for the specified date", false);
+//            }
+//
+//            Coupon coupon = coupons.get(0);
+//            coupon.setCouponStatus(CouponStatus.INACTIVE);
+//            couponRepo.save(coupon);
+//
+//            List<Coupon> bookingCoupons = couponRepo.findByBooking(coupon.getBooking());
+//            boolean allInactive = bookingCoupons.stream().allMatch(c -> c.getCouponStatus() == CouponStatus.INACTIVE);
+//
+//            if (allInactive) {
+//                Booking booking = coupon.getBooking();
+//                booking.setActive(false);
+//                bookingRepo.save(booking);
+//            }
+//
+//            return new LogResponse("Booking cancelled for date: " + cancelDate.toString(), true);
+//        } catch (Exception e) {
+//            return new LogResponse("Error occurred while cancelling booking: " + e.getMessage(), false);
+//        }
+//    }
+//
+//}

@@ -42,13 +42,11 @@ public class Booking_Implement implements BookingService {
     @Override
     public LogResponse addbooking(BookingReq bookingReq) {
         String msg;
+        String date;
         try {
-            // Check if employee exists
-            System.out.println(bookingReq.toString()+"\n\n\n\n\n\n\n\n\n"+bookingReq.toString());
             Employee employee = employeeRepo.findById(bookingReq.getEmployeeId())
                     .orElseThrow(() -> new RuntimeException("Employee not found"));
-            System.out.println(employee.toString());
-
+            if(bookingReq.getStartDate().equals(bookingReq.getEndDate())){ date = " on "+bookingReq.getStartDate();}else{ date = " on "+bookingReq.getStartDate()+" to "+bookingReq.getEndDate();}
             // Create a new Booking entity from DTO
             Booking booking = new Booking(employee, bookingReq.getStartDate(), bookingReq.getEndDate(), bookingReq.getBookingType());
             System.out.println(booking.toString());
@@ -59,7 +57,7 @@ public class Booking_Implement implements BookingService {
             if(!S_booked.isPresent() || !E_booked.isPresent()){
                 bookingRepo.save(booking);
                 generateCouponsForWeekdays(booking);
-                msg = "Booking saved successfully";
+                msg = "Booking saved successfully for "+bookingReq.getBookingType().toString().toLowerCase()+ date;
                 notificationService.AddNotification(employee,msg, NotificationType.BOOKED);
                 return new LogResponse(msg,true);
             }else {
@@ -68,12 +66,12 @@ public class Booking_Implement implements BookingService {
                 if (E_couponsExist) {
                     // Coupons exist, set cancel status to false for existing coupons
                     couponRepo.updateCancelStatusForBookingInRange(E_booked.get(), booking.getStartDate(), booking.getEndDate());
-                    msg = "Coupons reactivated successfully -1";
+                    msg = "Coupons reactivated successfully "+bookingReq.getBookingType().toString().toLowerCase()+ date;
                     notificationService.AddNotification(E_booked.get().getEmployee(),msg, NotificationType.BOOKED);
                     return new LogResponse(msg, true);
                 } else if(S_couponsExist){
                     couponRepo.updateCancelStatusForBookingInRange(S_booked.get(), booking.getStartDate(), booking.getEndDate());
-                    msg = "Coupons reactivated successfully -2";
+                    msg = "Coupons reactivated successfully "+bookingReq.getBookingType().toString().toLowerCase()+ date;
                     notificationService.AddNotification(S_booked.get().getEmployee(),msg, NotificationType.BOOKED);
                     return new LogResponse(msg, true);}
                 else {

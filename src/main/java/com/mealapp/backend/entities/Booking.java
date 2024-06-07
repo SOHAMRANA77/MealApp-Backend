@@ -28,6 +28,8 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private MenuType bookingType;
 
+    private boolean isActive;
+
     public Booking() {
     }
 

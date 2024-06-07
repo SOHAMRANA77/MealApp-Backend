@@ -2,6 +2,7 @@ package com.mealapp.backend.repository;
 import com.mealapp.backend.entities.Booking;
 
 import com.mealapp.backend.entities.Coupon;
+import com.mealapp.backend.entities.Employee;
 import com.mealapp.backend.enums.MenuType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -30,4 +31,10 @@ public interface CouponRepo extends JpaRepository<Coupon, Long> {
     void updateCancelStatusForBookingInRange(@Param("booking") Booking booking, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     Coupon findByBooking_Employee_IdAndCouponStampAndMenu_MenuType(Long empId, LocalDate date, MenuType type);
+
+    List<Coupon> findByBookingAndCouponStamp(Booking booking, LocalDate date);
+
+    List<Coupon> findByBookingEmployeeAndBookingBookingTypeAndCouponStampBetween(Employee employee, MenuType bookingType, LocalDate cancelDate, LocalDate cancelDate1);
+
+    List<Coupon> findByBooking(Booking booking);
 }
