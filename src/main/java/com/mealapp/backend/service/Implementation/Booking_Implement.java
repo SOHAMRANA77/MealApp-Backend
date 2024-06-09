@@ -24,6 +24,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -53,6 +54,7 @@ public class Booking_Implement implements BookingService {
         String date;
 
         try {
+            // Validate booking constraints
             if (!isBookingAllowed(bookingReq)) {
                 msg = "Booking is not allowed at this time for " + bookingReq.getBookingType().toString().toLowerCase();
                 return new LogResponse(msg, false);
@@ -64,63 +66,77 @@ public class Booking_Implement implements BookingService {
             if (bookingReq.getStartDate().equals(bookingReq.getEndDate())) {
                 date = " on " + bookingReq.getStartDate();
             } else {
-                date = " on " + bookingReq.getStartDate() + " to " + bookingReq.getEndDate();
+                date = " from " + bookingReq.getStartDate() + " to " + bookingReq.getEndDate();
             }
 
-            Booking booking = new Booking(employee, bookingReq.getStartDate(), bookingReq.getEndDate(), bookingReq.getBookingType());
-
-            Optional<Booking> S_booked = bookingRepo.findByEmpIdAndBookingTypeAndDateInRange(employee.getId(), bookingReq.getStartDate(), bookingReq.getBookingType());
-            Optional<Booking> E_booked = bookingRepo.findByEmpIdAndBookingTypeAndDateInRange(employee.getId(), bookingReq.getEndDate(), bookingReq.getBookingType());
-
-            if (!S_booked.isPresent() || !E_booked.isPresent()) {
-                bookingRepo.save(booking);
-                generateCouponsForWeekdays(booking);
-                msg = "Booking saved successfully for " + bookingReq.getBookingType().toString().toLowerCase() + date;
-                notificationService.AddNotification(employee, msg, NotificationType.BOOKED);
-                return new LogResponse(msg, true);
-            } else {
-                boolean S_couponsExist = couponRepo.existsByBookingAndCouponStampBetweenAndIsCancelTrue(S_booked.get(), booking.getStartDate(), booking.getEndDate());
-                boolean E_couponsExist = couponRepo.existsByBookingAndCouponStampBetweenAndIsCancelTrue(E_booked.get(), booking.getStartDate(), booking.getEndDate());
-
-                if (E_couponsExist) {
-                    couponRepo.updateCancelStatusForBookingInRange(E_booked.get(), booking.getStartDate(), booking.getEndDate());
-                    msg = "Coupons reactivated successfully " + bookingReq.getBookingType().toString().toLowerCase() + date;
-                    notificationService.AddNotification(E_booked.get().getEmployee(), msg, NotificationType.BOOKED);
-                    return new LogResponse(msg, true);
-                } else if (S_couponsExist) {
-                    couponRepo.updateCancelStatusForBookingInRange(S_booked.get(), booking.getStartDate(), booking.getEndDate());
-                    msg = "Coupons reactivated successfully " + bookingReq.getBookingType().toString().toLowerCase() + date;
-                    notificationService.AddNotification(S_booked.get().getEmployee(), msg, NotificationType.BOOKED);
-                    return new LogResponse(msg, true);
-                } else {
-                    return new LogResponse("Booking already in database but no active coupons found", true);
-                }
+            // Check for existing bookings
+            List<Booking> existingBookings = bookingRepo.findByEmployeeIdAndBookingTypeAndDateRange(
+                    employee.getId(), bookingReq.getBookingType(), bookingReq.getStartDate(), bookingReq.getEndDate());
+            if (!existingBookings.isEmpty()) {
+                msg = "Booking already exists for " + bookingReq.getBookingType().toString().toLowerCase() + date;
+                return new LogResponse(msg, false);
             }
+
+            Booking newBooking = new Booking(employee, bookingReq.getStartDate(), bookingReq.getEndDate(), bookingReq.getBookingType());
+
+            // Save the new booking first
+            bookingRepo.save(newBooking);
+
+            // Handle overlapping bookings
+            handleCouponsForOverlappingBookings(existingBookings, newBooking);
+
+            // Generate coupons for weekdays
+            generateCouponsForWeekdays(newBooking);
+
+            msg = "Booking saved successfully for " + bookingReq.getBookingType().toString().toLowerCase() + date;
+            notificationService.AddNotification(employee, msg, NotificationType.BOOKED);
+            return new LogResponse(msg, true);
+
         } catch (Exception e) {
             if (bookingReq.getStartDate().equals(bookingReq.getEndDate())) {
                 date = " on " + bookingReq.getStartDate();
             } else {
-                date = " on " + bookingReq.getStartDate() + " to " + bookingReq.getEndDate();
+                date = " from " + bookingReq.getStartDate() + " to " + bookingReq.getEndDate();
             }
-            msg = "Booking already in database for " + bookingReq.getBookingType().toString().toLowerCase() + date;
+            msg = "Booking failed for " + bookingReq.getBookingType().toString().toLowerCase() + date + ": " + e.getMessage();
             return new LogResponse(msg, false);
         }
     }
 
     private boolean isBookingAllowed(BookingReq bookingReq) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDate now = LocalDate.now();
+        LocalDate startDate = bookingReq.getStartDate();
+
+        LocalDateTime currentDateTime = LocalDateTime.now();
         if (bookingReq.getBookingType() == MenuType.LUNCH) {
-            LocalDateTime cutOff = LocalDateTime.of(now.toLocalDate(), LocalTime.of(21, 0));
-            if (now.isAfter(cutOff)) {
+            LocalDateTime cutOff = LocalDateTime.of(now, LocalTime.of(21, 0));
+            if (currentDateTime.isAfter(cutOff) && startDate.equals(now)) {
                 return false;
             }
         } else if (bookingReq.getBookingType() == MenuType.DINNER) {
-            LocalDateTime cutOff = LocalDateTime.of(now.toLocalDate(), LocalTime.of(14, 0));
-            if (now.isAfter(cutOff)) {
+            LocalDateTime cutOff = LocalDateTime.of(now, LocalTime.of(14, 0));
+            if (currentDateTime.isAfter(cutOff) && startDate.equals(now)) {
                 return false;
             }
         }
         return true;
+    }
+
+    private void handleCouponsForOverlappingBookings(List<Booking> overlappingBookings, Booking newBooking) {
+        for (Booking existingBooking : overlappingBookings) {
+            List<Coupon> existingCoupons = couponRepo.findByBooking(existingBooking);
+
+            for (Coupon coupon : existingCoupons) {
+                if (!coupon.getCouponStamp().isBefore(newBooking.getStartDate()) &&
+                        !coupon.getCouponStamp().isAfter(newBooking.getEndDate())) {
+                    coupon.setBooking(newBooking);
+                    couponRepo.save(coupon);
+                } else {
+                    coupon.setCancel(true);
+                    couponRepo.save(coupon);
+                }
+            }
+        }
     }
 
     private void generateCouponsForWeekdays(Booking booking) {

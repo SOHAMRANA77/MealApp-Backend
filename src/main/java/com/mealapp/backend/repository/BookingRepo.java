@@ -14,11 +14,41 @@ import java.util.Optional;
 
 @Repository
 public interface BookingRepo extends JpaRepository<Booking, Long> {
+//    @Query("SELECT b FROM Booking b WHERE b.employee.id = :empId AND :date BETWEEN b.startDate AND b.endDate")
+//    Optional<Booking> findByEmpIdAndDateInRange(@Param("empId") Long empId, @Param("date") LocalDate date);
+//
+//    @Query("SELECT b FROM Booking b WHERE b.employee.id = :empId AND b.bookingType = :type AND :date BETWEEN b.startDate AND b.endDate")
+//    Optional<Booking> findByEmpIdAndBookingTypeAndDateInRange(@Param("empId") Long empId, @Param("date") LocalDate date, @Param("type")MenuType menuType);
+//
+//    List<Booking> findByEmployeeAndBookingTypeAndStartDateBetweenOrEndDateBetween(Employee employee, MenuType bookingType, LocalDate startDate, LocalDate endDate, LocalDate endDate1, LocalDate startDate1);
+//
+//    List<Booking> findByEmpIdAndBookingType(Long id, MenuType bookingType);
+//
+//    @Query("SELECT b FROM Booking b WHERE b.employee.id = :employeeId AND b.bookingType = :bookingType AND b.startDate <= :endDate AND b.endDate >= :startDate")
+//    List<Booking> findByEmployeeIdAndBookingTypeAndDateRange(
+//            @Param("employeeId") Long employeeId,
+//            @Param("bookingType") MenuType bookingType,
+//            @Param("startDate") LocalDate startDate,
+//            @Param("endDate") LocalDate endDate
+//    );
+
     @Query("SELECT b FROM Booking b WHERE b.employee.id = :empId AND :date BETWEEN b.startDate AND b.endDate")
     Optional<Booking> findByEmpIdAndDateInRange(@Param("empId") Long empId, @Param("date") LocalDate date);
 
     @Query("SELECT b FROM Booking b WHERE b.employee.id = :empId AND b.bookingType = :type AND :date BETWEEN b.startDate AND b.endDate")
-    Optional<Booking> findByEmpIdAndBookingTypeAndDateInRange(@Param("empId") Long empId, @Param("date") LocalDate date, @Param("type")MenuType menuType);
+    Optional<Booking> findByEmpIdAndBookingTypeAndDateInRange(@Param("empId") Long empId, @Param("date") LocalDate date, @Param("type") MenuType menuType);
 
-    List<Booking> findByEmployeeAndBookingTypeAndStartDateBetweenOrEndDateBetween(Employee employee, MenuType bookingType, LocalDate startDate, LocalDate endDate, LocalDate endDate1, LocalDate startDate1);
+    @Query("SELECT b FROM Booking b WHERE b.employee.id = :employeeId AND b.bookingType = :bookingType AND b.startDate <= :endDate AND b.endDate >= :startDate")
+    List<Booking> findByEmployeeIdAndBookingTypeAndDateRange(
+            @Param("employeeId") Long employeeId,
+            @Param("bookingType") MenuType bookingType,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate
+    );
+
+    @Query("SELECT b FROM Booking b WHERE b.employee.id = :employeeId AND b.bookingType = :bookingType")
+    List<Booking> findByEmployeeIdAndBookingType(
+            @Param("employeeId") Long employeeId,
+            @Param("bookingType") MenuType bookingType
+    );
 }
