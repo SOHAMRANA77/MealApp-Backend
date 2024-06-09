@@ -80,7 +80,9 @@ public class Booking_Implement implements BookingService {
                 }
             }
         } catch (Exception e) {
-            return new LogResponse("Error occurred while booking: " + e.getMessage(), false);
+            if(bookingReq.getStartDate().equals(bookingReq.getEndDate())){ date = " on "+bookingReq.getStartDate();}else{ date = " on "+bookingReq.getStartDate()+" to "+bookingReq.getEndDate();}
+            msg = "Booking already in database for "+bookingReq.getBookingType().toString().toLowerCase()+ date;
+            return new LogResponse(msg, false);
         }
     }
 

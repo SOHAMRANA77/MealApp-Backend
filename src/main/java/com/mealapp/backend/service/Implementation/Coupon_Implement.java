@@ -2,6 +2,7 @@ package com.mealapp.backend.service.Implementation;
 
 import com.mealapp.backend.dtos.Request.DeleteCoupon;
 import com.mealapp.backend.dtos.Response.Booked_Response;
+import com.mealapp.backend.dtos.Response.BookingsResponse;
 import com.mealapp.backend.dtos.Response.CouponResponse;
 import com.mealapp.backend.dtos.Response.LogResponse;
 import com.mealapp.backend.entities.Coupon;
@@ -17,9 +18,11 @@ import com.mealapp.backend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,6 +82,31 @@ public class Coupon_Implement implements CouponService {
         } else {
             // Coupon not found
             return ResponseEntity.ok(new LogResponse("Coupon not found for emp_id=" + empId + ", date=" + date + ", type=" + type,false));
+        }
+    }
+    @Scheduled(cron = "0 * * * * *")
+    public void updateCouponStatuses() {
+        List<Coupon> allBookings = couponRepo.findAll();
+        LocalDate today = LocalDate.now();
+        LocalTime currentTime = LocalTime.now();
+
+        for (Coupon booking : allBookings) {
+            if (booking.getCouponStamp().isEqual(today)) {
+                if (booking.getBooking().getBookingType() == MenuType.LUNCH) {
+                    if (currentTime.isAfter(LocalTime.of(12, 0)) && currentTime.isBefore(LocalTime.of(13, 0))) {
+                        booking.setCouponStatus(CouponStatus.ACTIVE);
+                    } else if (currentTime.isAfter(LocalTime.of(13, 0))) {
+                        booking.setCouponStatus(CouponStatus.DISCARD);
+                    }
+                } else if (booking.getBooking().getBookingType() == MenuType.DINNER) {
+                    if (currentTime.isAfter(LocalTime.of(19, 0)) && currentTime.isBefore(LocalTime.of(20, 0))) {
+                        booking.setCouponStatus(CouponStatus.ACTIVE);
+                    } else if (currentTime.isAfter(LocalTime.of(20, 0))) {
+                        booking.setCouponStatus(CouponStatus.DISCARD);
+                    }
+                }
+                couponRepo.save(booking);
+            }
         }
     }
 }
