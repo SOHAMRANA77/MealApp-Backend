@@ -37,30 +37,4 @@ public class CouponConroller {
         LogResponse isCancel = couponService.DeleteCouponByDateAndMealTypeAndEmpID(deleteCoupon);
         return ResponseEntity.ok(isCancel);
     }
-
-
-//    @GetMapping("/getBookingsByEmpId")
-//    public BookingsResponse getBookings(@RequestParam Long emp_id) {
-//        List<Booked_Response> bookedResponses = couponService.getCouponByID(emp_id);
-//
-//        Map<String, BookingsResponse.MealType> bookingsMap = new HashMap<>();
-//
-//        for (Booked_Response response : bookedResponses) {
-//            String date = response.getDate().toString();
-//            BookingsResponse.MealType mealType = bookingsMap.getOrDefault(date, new BookingsResponse.MealType());
-//
-//            if (response.getType() == MenuType.LUNCH) {
-//                mealType.setLUNCH(true);
-//            } else if (response.getType() == MenuType.DINNER) {
-//                mealType.setDINNER(true);
-//            }
-//
-//            bookingsMap.put(date, mealType);
-//        }
-//
-//        BookingsResponse bookingsResponse = new BookingsResponse();
-//        bookingsResponse.setBookings(bookingsMap);
-//
-//        return bookingsResponse;
-//    }
 }

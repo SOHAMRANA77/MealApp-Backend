@@ -17,14 +17,6 @@ public class QrCodeController {
     @Autowired
     private CouponService couponService;
 
-//    @GetMapping("/GetQrCode")
-//    public ResponseEntity<?> getQrCode(@RequestParam("emp_id") Long emp_id,
-//                                    @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-//                                    @RequestParam("type") MenuType type) {
-//        return ResponseEntity.ok(couponService.getQRcdoe(emp_id, date, type));
-//
-//    }
-
     @GetMapping("/GetQrCode")
     public ResponseEntity<?> getQrCode(@RequestParam("emp_id") Long emp_id,
                                        @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,

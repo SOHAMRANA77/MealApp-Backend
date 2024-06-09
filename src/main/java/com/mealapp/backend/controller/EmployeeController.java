@@ -25,14 +25,14 @@ public class EmployeeController {
     private final EmployeeService employeeService;
     private final departmentService departmentService;
 
-    @Autowired
+
     public EmployeeController(EmployeeService employeeService, com.mealapp.backend.service.departmentService departmentService) {
         this.employeeService = employeeService;
         this.departmentService = departmentService;
     }
+
     @GetMapping("/getName")
-    public String getname(@RequestParam("id") Long id) {
-        System.out.println(id);
+    public String getName(@RequestParam("id") Long id) {
         return employeeService.getNameById(id);
     }
 
@@ -59,8 +59,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseEntity<?> chanegePassword(@RequestBody ChangePassword changePassword){
-        System.out.println(changePassword.toString());
+    public ResponseEntity<?> changePassword(@RequestBody ChangePassword changePassword){
         return employeeService.changePassword(changePassword);
     }
 
