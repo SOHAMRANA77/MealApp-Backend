@@ -25,7 +25,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class Booking_Implement implements BookingService {
@@ -69,10 +68,24 @@ public class Booking_Implement implements BookingService {
                 date = " from " + bookingReq.getStartDate() + " to " + bookingReq.getEndDate();
             }
 
-            // Check for existing bookings
+            // Check for existing bookings, excluding canceled ones
             List<Booking> existingBookings = bookingRepo.findByEmployeeIdAndBookingTypeAndDateRange(
                     employee.getId(), bookingReq.getBookingType(), bookingReq.getStartDate(), bookingReq.getEndDate());
-            if (!existingBookings.isEmpty()) {
+
+            boolean hasNonCanceledBookings = false;
+            for (Booking existingBooking : existingBookings) {
+                List<Coupon> existingCoupons = couponRepo.findByBooking(existingBooking);
+                for (Coupon coupon : existingCoupons) {
+                    if (!coupon.isCancel() &&
+                            !coupon.getCouponStamp().isBefore(bookingReq.getStartDate()) &&
+                            !coupon.getCouponStamp().isAfter(bookingReq.getEndDate())) {
+                        hasNonCanceledBookings = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasNonCanceledBookings) {
                 msg = "Booking already exists for " + bookingReq.getBookingType().toString().toLowerCase() + date;
                 return new LogResponse(msg, false);
             }
@@ -103,6 +116,7 @@ public class Booking_Implement implements BookingService {
         }
     }
 
+
     private boolean isBookingAllowed(BookingReq bookingReq) {
         LocalDate now = LocalDate.now();
         LocalDate startDate = bookingReq.getStartDate();
@@ -127,12 +141,22 @@ public class Booking_Implement implements BookingService {
             List<Coupon> existingCoupons = couponRepo.findByBooking(existingBooking);
 
             for (Coupon coupon : existingCoupons) {
-                if (!coupon.getCouponStamp().isBefore(newBooking.getStartDate()) &&
+                if (!coupon.isCancel() && // Ensure coupon is not canceled
+                        !coupon.getCouponStamp().isBefore(newBooking.getStartDate()) &&
                         !coupon.getCouponStamp().isAfter(newBooking.getEndDate())) {
+                    // Check if the coupon status is INACTIVE and update to ACTIVE if necessary
+                    if (coupon.getCouponStatus() == CouponStatus.INACTIVE) {
+                        coupon.setCouponStatus(CouponStatus.ACTIVE);
+                    }
                     coupon.setBooking(newBooking);
                     couponRepo.save(coupon);
-                } else {
-                    coupon.setCancel(true);
+                } else if (coupon.isCancel() &&
+                        !coupon.getCouponStamp().isBefore(newBooking.getStartDate()) &&
+                        !coupon.getCouponStamp().isAfter(newBooking.getEndDate())) {
+                    // Reactivate canceled coupon, update booking, and set coupon status to ACTIVE
+                    coupon.setBooking(newBooking);
+                    coupon.setCancel(false);
+                    coupon.setCouponStatus(CouponStatus.ACTIVE);
                     couponRepo.save(coupon);
                 }
             }

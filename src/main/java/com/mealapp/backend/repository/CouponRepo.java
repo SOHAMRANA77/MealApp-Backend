@@ -36,5 +36,8 @@ public interface CouponRepo extends JpaRepository<Coupon, Long> {
 
     List<Coupon> findByBookingEmployeeAndBookingBookingTypeAndCouponStampBetween(Employee employee, MenuType bookingType, LocalDate cancelDate, LocalDate cancelDate1);
 
-    List<Coupon> findByBooking(Booking booking);
+//    List<Coupon> findByBooking(Booking booking);
+
+    @Query("SELECT c FROM Coupon c WHERE c.booking = :booking AND c.isCancel = false")
+    List<Coupon> findByBooking(@Param("booking") Booking booking);
 }

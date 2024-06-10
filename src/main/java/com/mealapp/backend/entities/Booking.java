@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Data
@@ -28,7 +29,10 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private MenuType bookingType;
 
-    private boolean isActive;
+    private boolean isCanceled = false;
+
+    @OneToMany(mappedBy = "booking")
+    private List<Coupon> coupons;
 
     public Booking() {
     }
