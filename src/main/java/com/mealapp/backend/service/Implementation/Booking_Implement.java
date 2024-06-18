@@ -118,21 +118,21 @@ public class Booking_Implement implements BookingService {
 
 
     private boolean isBookingAllowed(BookingReq bookingReq) {
-        LocalDate now = LocalDate.now();
-        LocalDate startDate = bookingReq.getStartDate();
-
-        LocalDateTime currentDateTime = LocalDateTime.now();
-        if (bookingReq.getBookingType() == MenuType.LUNCH) {
-            LocalDateTime cutOff = LocalDateTime.of(now, LocalTime.of(21, 0));
-            if (currentDateTime.isAfter(cutOff) && startDate.equals(now)) {
-                return false;
-            }
-        } else if (bookingReq.getBookingType() == MenuType.DINNER) {
-            LocalDateTime cutOff = LocalDateTime.of(now, LocalTime.of(14, 0));
-            if (currentDateTime.isAfter(cutOff) && startDate.equals(now)) {
-                return false;
-            }
-        }
+//        LocalDate now = LocalDate.now();
+//        LocalDate startDate = bookingReq.getStartDate();
+//
+//        LocalDateTime currentDateTime = LocalDateTime.now();
+//        if (bookingReq.getBookingType() == MenuType.LUNCH) {
+//            LocalDateTime cutOff = LocalDateTime.of(now, LocalTime.of(21, 0));
+//            if (currentDateTime.isAfter(cutOff) && startDate.equals(now)) {
+//                return false;
+//            }
+//        } else if (bookingReq.getBookingType() == MenuType.DINNER) {
+//            LocalDateTime cutOff = LocalDateTime.of(now, LocalTime.of(14, 0));
+//            if (currentDateTime.isAfter(cutOff) && startDate.equals(now)) {
+//                return false;
+//            }
+//        }
         return true;
     }
 

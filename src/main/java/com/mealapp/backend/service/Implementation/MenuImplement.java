@@ -6,6 +6,7 @@ import com.mealapp.backend.enums.MenuDay;
 import com.mealapp.backend.enums.MenuType;
 import com.mealapp.backend.repository.MenuRepo;
 import com.mealapp.backend.service.MenuService;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@NoArgsConstructor
 public class MenuImplement implements MenuService {
 
     @Autowired

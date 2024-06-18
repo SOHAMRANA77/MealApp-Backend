@@ -1,5 +1,6 @@
 package com.mealapp.backend.dtos.Response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,9 +8,15 @@ import org.springframework.http.HttpStatus;
 @Data
 @NoArgsConstructor
 public class LogResponse {
-    String message;
-    HttpStatus http;
-    boolean status;
+
+    @Schema(description = "Message describing the result of the operation")
+    private String message;
+
+    @Schema(description = "HTTP status code returned by the operation")
+    private HttpStatus http;
+
+    @Schema(description = "Boolean status indicating success or failure of the operation")
+    private boolean status;
 
     public LogResponse(String message, HttpStatus http, boolean status) {
         this.message = message;

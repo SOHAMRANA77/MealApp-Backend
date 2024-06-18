@@ -14,11 +14,28 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http.csrf(csrf -> csrf.disable())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/mealApp/api/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+//                        .anyRequest().authenticated())
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+//
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws  Exception{
-        http.csrf(AbstractHttpConfigurer::disable)
+//        http.csrf(AbstractHttpConfigurer::disable)
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("mealApp/api/**").permitAll()
+                        .requestMatchers("/mealApp/api/swagger-ui.html",
+                                "/mealApp/api/api-docs/**",
+                                "/mealApp/api/swagger-ui/**",
+                                "/mealApp/api/swagger-config/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
