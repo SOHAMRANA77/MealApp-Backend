@@ -4,6 +4,10 @@
 
 Welcome to the backend of the Meal App Website! This backend service is built using Spring Boot and provides a robust and scalable foundation for managing meal bookings, user authentication, and various other functionalities. The backend interacts with the frontend to ensure a seamless experience for users.
 
+### Frontend Code
+
+To check out the frontend code, visit the [Meal App Frontend Repository](https://github.com/SOHAMRANA77/MealApp-Frontend).
+
 ### Key Features
 
 1. User Authentication and Authorization
